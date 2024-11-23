@@ -9,9 +9,6 @@ export class Home extends Route {
   constructor(name: string, director: IDirector) {
     super(name, director);
     this.render();
-    this.on('routeRegistered', (name) => {
-      window.___debug.log(`Route ${name} registered`, 'success');
-    });
   }
   render() {
     super.render();

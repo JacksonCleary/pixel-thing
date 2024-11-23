@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Threeasy from 'threeasy';
-import anime from 'animejs/lib/anime.es.js';
 import { Director } from '../classes/Director';
 import {
   SHIMThreeasy,
@@ -27,37 +26,6 @@ const start = (sceneEl: HTMLElement) => {
   // controls.enableZoom = false;
 
   app.scene.background = new THREE.Color('dodgerblue');
-
-  // const mat = new THREE.MeshBasicMaterial({ color: 'white' });
-  // const geo = new THREE.BoxGeometry();
-
-  // const mesh = new THREE.Mesh(geo, mat);
-
-  // app.scene.add(mesh);
-
-  // // Animate the mesh using animejs
-  // const animation = anime({
-  //   targets: mesh.position,
-  //   x: -1,
-  //   y: -1,
-  //   z: 0,
-  //   duration: 2000,
-  //   easing: 'easeInOutQuad',
-  //   loop: true,
-  //   direction: 'alternate',
-  //   autoplay: false, // Disable autoplay
-  // });
-
-  // // Render loop
-  // const animate = () => {
-  //   requestAnimationFrame(animate);
-  //   controls.update();
-  //   // animation.play();
-  //   app.renderer.render(app.scene, app.camera);
-  //   console.log('Animating');
-  // };
-
-  // animate();
 
   const director = new Director(app, controls);
 

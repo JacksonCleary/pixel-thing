@@ -6,6 +6,24 @@ import { Director } from './Director';
 export class Router {
   private currentRoute: Route | null = null;
 
+  constructor() {
+    // Handle browser back/forward
+    window.addEventListener('popstate', (event) => {
+      const path = event.state?.path || '/';
+      this.navigate(path, null, true);
+    });
+  }
+
+  public navigate(path: string, director: Director | null, skipPush = false) {
+    if (!skipPush) {
+      window.history.pushState({ path }, '', path);
+    }
+
+    if (director) {
+      this.route(path, director);
+    }
+  }
+
   route(path: string, director: Director) {
     const route = ROUTES.find((r) => r.permalink === path);
 

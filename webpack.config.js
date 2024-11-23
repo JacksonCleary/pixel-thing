@@ -7,7 +7,7 @@ const CopywebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
   context: __dirname,
   entry: {
-    app: './src/app.ts'
+    app: './src/app.ts',
   },
   output: {
     filename: '[name].js',
@@ -22,35 +22,35 @@ module.exports = {
       },
       {
         test: /\.s?[ac]ss$/i,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader',
-        ],
-      }, {
-        test: /\.(png|gif|jpg|jpeg|svg|xml)$/,
-        use: [ 'url-loader' ]
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
-    ]
+      {
+        test: /\.(png|gif|jpg|jpeg|svg|xml)$/,
+        use: ['url-loader'],
+      },
+    ],
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
     }),
     new CopywebpackPlugin({
       patterns: [
         {
           from: 'src/assets/**/*',
           to: 'assets/[name][ext]',
-
         },
       ],
     }),
   ],
   devServer: {
-    static: path.join(__dirname, 'dist')
-  }
+    static: path.join(__dirname, 'dist'),
+    historyApiFallback: true, // Redirect all 404s to index.html
+    hot: true,
+    open: true,
+    port: 8080,
+  },
 };
