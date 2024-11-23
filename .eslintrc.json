@@ -9,7 +9,13 @@
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "prettier"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
     ],
     "rules": {
         "@typescript-eslint/consistent-type-definitions": "error",
@@ -33,7 +39,7 @@
         "@typescript-eslint/no-misused-new": "error",
         "@typescript-eslint/no-non-null-assertion": "error",
         "@typescript-eslint/prefer-function-type": "error",
-        "@typescript-eslint/quotes": [
+        "quotes": [
             "error",
             "single"
         ],
@@ -47,78 +53,6 @@
             "error",
             "always"
         ],
-        "constructor-super": "error",
-        "curly": "error",
-        "dot-notation": "off",
-        "eol-last": "error",
-        "eqeqeq": [
-            "error",
-            "smart"
-        ],
-        "indent": ["error", 2],
-        "guard-for-in": "error",
-        "id-blacklist": "off",
-        "id-match": "off",
-        "max-len": [
-            "error",
-            {
-                "code": 256
-            }
-        ],
-        "no-bitwise": "error",
-        "no-caller": "error",
-        "no-console": [
-            "error",
-            {
-                "allow": [
-                    "log",
-                    "warn",
-                    "dir",
-                    "timeLog",
-                    "assert",
-                    "clear",
-                    "count",
-                    "countReset",
-                    "group",
-                    "groupEnd",
-                    "table",
-                    "dirxml",
-                    "error",
-                    "groupCollapsed",
-                    "Console",
-                    "profile",
-                    "profileEnd",
-                    "timeStamp",
-                    "context"
-                ]
-            }
-        ],
-        "no-debugger": "error",
-        "no-empty": "off",
-        "no-eval": "error",
-        "no-fallthrough": "error",
-        "no-irregular-whitespace": "error",
-        "no-multiple-empty-lines": "error",
-        "no-new-wrappers": "error",
-        "no-restricted-imports": [
-            "error",
-            "rxjs/Rx"
-        ],
-        "no-shadow": [
-            "error",
-            {
-                "hoist": "all"
-            }
-        ],
-        "no-throw-literal": "error",
-        "no-trailing-spaces": "error",
-        "no-undef-init": "error",
-        "no-underscore-dangle": "off",
-        "no-unused-expressions": "error",
-        "no-unused-labels": "error",
-        "no-var": "error",
-        "prefer-const": "error",
-        "radix": "error",
-        "spaced-comment": "error"
+        "prettier/prettier": "error"
     }
 }
