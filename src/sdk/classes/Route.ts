@@ -1,6 +1,6 @@
 // A parent route consumed by the router
 
-import { IDirector } from './Director';
+import { Director, IDirector } from './Director';
 
 export class Route {
   eventListeners: Array<{
@@ -12,10 +12,10 @@ export class Route {
 
   director: IDirector;
 
-  constructor(name: string, director: IDirector) {
+  constructor(name: string) {
     window.___debug.log(`Route ${name} registered`);
 
-    this.director = director;
+    this.director = Director.getInstance();
 
     // Bind the render method to the instance
     this.render = this.render.bind(this);

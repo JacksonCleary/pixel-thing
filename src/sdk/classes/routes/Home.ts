@@ -1,13 +1,13 @@
 // a child of Route class
 import home from '../../components/routes/home';
-import { IDirector } from '../Director';
+import { Director } from '../Director';
 import { Route } from '../Route';
 import * as THREE from 'three';
 import anime from 'animejs/lib/anime.es.js';
 
 export class Home extends Route {
-  constructor(name: string, director: IDirector) {
-    super(name, director);
+  constructor(name: string) {
+    super(name);
     this.render();
   }
   render() {

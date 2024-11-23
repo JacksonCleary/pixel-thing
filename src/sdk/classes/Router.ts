@@ -10,23 +10,23 @@ export class Router {
     // Handle browser back/forward
     window.addEventListener('popstate', (event) => {
       const path = event.state?.path || '/';
-      this.navigate(path, null, true);
+      this.navigate(path, true);
     });
   }
 
-  public navigate(path: string, director: Director | null, skipPush = false) {
+  public navigate(path: string, skipPush = false) {
     if (!skipPush) {
       window.history.pushState({ path }, '', path);
     }
-
+    const director = Director.getInstance();
     if (director) {
-      this.route(path, director);
+      this.route(path);
     }
   }
 
-  route(path: string, director: Director) {
+  route(path: string) {
     const route = ROUTES.find((r) => r.permalink === path);
-
+    const director = Director.getInstance();
     try {
       // Cleanup previous route if exists
       if (this.currentRoute) {
@@ -38,7 +38,7 @@ export class Router {
 
         // Type guard to ensure component is valid
         if (typeof route.component === 'function') {
-          this.currentRoute = new route.component(route.title, director);
+          this.currentRoute = new route.component(route.title);
           console.log(this.currentRoute);
         } else {
           throw new Error(`Invalid component for route: ${path}`);
@@ -46,11 +46,11 @@ export class Router {
       } else {
         window.___debug.log(`No route found for ${path}`, 'error');
         // Navigate to 404 route
-        this.route('/404', director);
+        this.route('/404');
       }
     } catch (error) {
       window.___debug.log(`Error rendering route: ${error.message}`, 'error');
-      this.route('/404', director);
+      this.route('/404');
     }
   }
 }

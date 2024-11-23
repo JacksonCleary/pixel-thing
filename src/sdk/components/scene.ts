@@ -27,8 +27,7 @@ const start = (sceneEl: HTMLElement) => {
 
   app.scene.background = new THREE.Color('dodgerblue');
 
-  const director = new Director(app, controls);
-
+  const director = Director.getInstance(app, controls);
   director.start();
 };
 

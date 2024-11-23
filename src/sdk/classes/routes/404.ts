@@ -4,8 +4,8 @@ import { IDirector } from '../Director';
 import { Route } from '../Route';
 
 export class Four04 extends Route {
-  constructor(name: string, director: IDirector) {
-    super(name, director);
+  constructor(name: string) {
+    super(name);
     this.render();
   }
   render() {

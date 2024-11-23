@@ -1,10 +1,8 @@
-import home from '../components/routes/home';
-import { IDirector } from '../classes/Director';
 import { Route } from '../classes/Route';
 import { Home } from '../classes/routes/Home';
 import { Four04 } from '../classes/routes/404';
 
-type RouteConstructor = new (name: string, director: IDirector) => Route;
+type RouteConstructor = new (name: string) => Route;
 
 type route = {
   permalink: string;

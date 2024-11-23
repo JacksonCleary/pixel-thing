@@ -15,6 +15,7 @@ export interface IDirector {
 }
 
 export class Director implements IDirector {
+  private static instance: Director | null = null;
   app;
   controls;
   animationQueue = [];
@@ -24,6 +25,22 @@ export class Director implements IDirector {
     this.controls = controls;
   }
 
+  public static getInstance(app?, controls?): Director {
+    if (!Director.instance) {
+      if (!app || !controls) {
+        throw new Error(
+          'Director requires app and controls for initialization'
+        );
+      }
+      Director.instance = new Director(app, controls);
+    }
+    return Director.instance;
+  }
+
+  public static hasInstance(): boolean {
+    return Director.instance !== null;
+  }
+
   start = () => {
     this.animate();
     this.findRoute(window.location.pathname);
@@ -31,7 +48,7 @@ export class Director implements IDirector {
 
   findRoute = (path: string) => {
     const router = new Router();
-    router.route(path, this);
+    router.route(path);
   };
 
   animate = () => {
