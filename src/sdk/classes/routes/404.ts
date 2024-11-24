@@ -2,10 +2,11 @@
 import home from '../../components/routes/home';
 import { IDirector } from '../Director';
 import { Route } from '../Route';
+import { routeInstance } from '../../constants/routing';
 
 export class Four04 extends Route {
-  constructor(name: string) {
-    super(name);
+  constructor(routeInstance: routeInstance) {
+    super(routeInstance);
     this.render();
   }
   render() {

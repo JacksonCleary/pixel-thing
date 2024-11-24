@@ -2,15 +2,15 @@ import { Route } from '../classes/Route';
 import { Home } from '../classes/routes/Home';
 import { Four04 } from '../classes/routes/404';
 
-type RouteConstructor = new (name: string) => Route;
-
-type route = {
+export type routeInstance = {
   permalink: string;
   component: RouteConstructor;
   title: string;
 };
 
-export const ROUTES: route[] = [
+type RouteConstructor = new (routeInstance: routeInstance) => Route;
+
+export const ROUTES: routeInstance[] = [
   {
     permalink: '/',
     component: Home,

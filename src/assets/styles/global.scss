@@ -15,15 +15,24 @@ body {
   position: relative;
 }
 
-#scene {
-  background: pink;
+#scene,
+#ui {
   left: 0;
   position: absolute;
   top: 0;
 }
 
-#app,
 #scene {
+  z-index: 1;
+}
+
+#ui {
+  z-index: 2;
+}
+
+#app,
+#scene,
+#ui {
   height: 100%;
   width: 100%;
 }

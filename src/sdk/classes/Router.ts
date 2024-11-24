@@ -26,7 +26,6 @@ export class Router {
 
   route(path: string) {
     const route = ROUTES.find((r) => r.permalink === path);
-    const director = Director.getInstance();
     try {
       // Cleanup previous route if exists
       if (this.currentRoute) {
@@ -38,7 +37,7 @@ export class Router {
 
         // Type guard to ensure component is valid
         if (typeof route.component === 'function') {
-          this.currentRoute = new route.component(route.title);
+          this.currentRoute = new route.component(route);
           console.log(this.currentRoute);
         } else {
           throw new Error(`Invalid component for route: ${path}`);

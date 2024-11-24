@@ -1,5 +1,5 @@
 // A parent route consumed by the router
-
+import { routeInstance } from '../constants/routing';
 import { Director, IDirector } from './Director';
 
 export class Route {
@@ -12,7 +12,10 @@ export class Route {
 
   director: IDirector;
 
-  constructor(name: string) {
+  title: string;
+  permalink: string;
+
+  constructor(route: routeInstance) {
     window.___debug.log(`Route ${name} registered`);
 
     this.director = Director.getInstance();
@@ -24,6 +27,9 @@ export class Route {
 
     // emit a custom event when the route is registered
     this.emit('routeRegistered', name);
+
+    this.title = route.title;
+    this.permalink = route.permalink;
   }
 
   addEventListener(

@@ -25,9 +25,10 @@ const start = (sceneEl: HTMLElement) => {
   controls.enableRotate = false;
   // controls.enableZoom = false;
 
-  app.scene.background = new THREE.Color('dodgerblue');
-
   const director = Director.getInstance(app, controls);
+  const tertiaryColor = director.colorScheme.tertiary;
+  app.scene.background = new THREE.Color(tertiaryColor);
+
   director.start();
 };
 
