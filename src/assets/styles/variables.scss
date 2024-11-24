@@ -1,0 +1,10 @@
+:root {
+  /* Font */
+  --font-family: 'Courier New', Courier, monospace;
+
+  /* Transition */
+  --transition-delay-short: 0.2s;
+  --transition-delay-medium: 0.5s;
+  --transition-delay-long: 1s;
+  --transition-easing: cubic-bezier(0.77, 0, 0.175, 1);
+}

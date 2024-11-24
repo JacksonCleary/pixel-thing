@@ -8,7 +8,9 @@ import { convertToScreenCoords, convertGroupDimensions } from '../../util/size';
 
 export class Home extends Route {
   group: THREE.Group;
+  interactiveGroupArray: THREE.Mesh[] = [];
   animationCompleteTick: number = 0;
+  button: HTMLElement;
 
   constructor(routeInstance: routeInstance) {
     super(routeInstance);
@@ -58,6 +60,8 @@ export class Home extends Route {
     const boxes: THREE.Mesh[][] = [];
     const group = new THREE.Group();
 
+    this.interactiveGroupArray = [];
+
     for (let y = 0; y < height; y++) {
       const row: THREE.Mesh[] = [];
       for (let x = 0; x < width; x++) {
@@ -80,6 +84,10 @@ export class Home extends Route {
         group.add(mesh);
         this.createAnimation(mesh, x, y, height);
         row.push(mesh);
+
+        if (!isFirstRow) {
+          this.interactiveGroupArray.push(mesh);
+        }
       }
       boxes.push(row);
     }
@@ -93,9 +101,23 @@ export class Home extends Route {
 
   render() {
     super.render();
-    this.createBoxRectangle();
+    this.button = document.getElementById('start');
+    if (this.button) {
+      this.addEventListener(this.button, 'mouseenter', () => {
+        this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
+          mesh.position.y -= 1;
+        });
+      });
+      this.addEventListener(this.button, 'mouseleave', () => {
+        this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
+          mesh.position.y += 1;
+        });
+      });
+      this.createBoxRectangle();
+    }
   }
 
+  // Method to position button after animation
   animationComplete() {
     const boundingBox = new THREE.Box3().setFromObject(this.group);
     const topLeft = {
@@ -122,6 +144,7 @@ export class Home extends Route {
       button.style.top = `${screenPos.y}px`;
       button.style.width = `${dimensions.width}px`;
       button.style.height = `${dimensions.height}px`;
+      button.classList.add('ready');
     }
   }
 }

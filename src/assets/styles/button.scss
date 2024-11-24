@@ -1,0 +1,29 @@
+button {
+  background: none;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  padding: 0.5rem;
+  position: relative;
+  top: 0;
+  visibility: hidden;
+  /* transition */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(1rem);
+  transition: opacity var(--transition-delay-short) var(--transition-easing),
+    transform var(--transition-delay-short) var(--transition-easing);
+
+  &.ready {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  &:hover {
+    padding-top: 1rem;
+  }
+}

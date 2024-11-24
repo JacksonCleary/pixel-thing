@@ -1,5 +1,11 @@
+html,
+body {
+  background: #212121;
+}
+
 body {
   border: 0;
+  font-family: var(--font-family);
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -26,13 +32,16 @@ body {
   z-index: 1;
 }
 
-#ui {
-  z-index: 2;
-}
-
 #app,
 #scene,
 #ui {
   height: 100%;
   width: 100%;
+}
+
+body.ready {
+  #ui {
+    display: block;
+    z-index: 2;
+  }
 }
