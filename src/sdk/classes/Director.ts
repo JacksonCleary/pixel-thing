@@ -4,6 +4,9 @@ import { SHIMThreeasy } from '../third-party/models/threeasy';
 import { Router } from './Router';
 import { SceneObject } from './shapes/shape';
 import { iColorScheme, getColorScheme } from '../constants/color';
+import * as THREE from 'three';
+import anime from 'animejs';
+import { DOMElement } from './elements/DOMElement';
 
 export interface IDirector {
   animationQueue: Array<Function>;
@@ -18,10 +21,16 @@ export interface IDirector {
   addShapeToScene: (shape: SceneObject) => void;
   removeShapeFromScene: (shape: SceneObject) => void;
   assignColorScheme: (scheme: string) => void;
+  animateOutScene: () => Promise<void>;
+  addDOMObjectToDOMObjects: (object: DOMElement<HTMLElement>) => void;
+  removeDOMObjectsFromScene: () => Promise<void>;
 }
 
 export class Director implements IDirector {
   private static instance: Director | null = null;
+  private sceneObjects: SceneObject[] = [];
+  private domObjects: DOMElement<HTMLElement>[] = [];
+
   app: SHIMThreeasy;
   controls: OrbitControls;
   colorScheme: iColorScheme;
@@ -54,7 +63,12 @@ export class Director implements IDirector {
     this.findRoute(window.location.pathname);
   };
 
-  findRoute = (path: string) => {
+  // Update route finding to wait for animation
+  findRoute = async (path: string) => {
+    await this.removeDOMObjectsFromScene();
+    // small wait time for visual effect
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    await this.animateOutScene();
     const router = new Router();
     router.route(path);
   };
@@ -82,6 +96,7 @@ export class Director implements IDirector {
 
   // Add shape to scene
   addShapeToScene = (shape: SceneObject) => {
+    this.sceneObjects.push(shape);
     this.app.scene.add(shape);
   };
 
@@ -93,5 +108,118 @@ export class Director implements IDirector {
   // Assign color scheme
   assignColorScheme = (scheme?: string): void => {
     this.colorScheme = getColorScheme(scheme);
+  };
+
+  // Update method signatures to use DOMElement
+  addDOMObjectToDOMObjects = (object: DOMElement<HTMLElement>) => {
+    this.domObjects.push(object);
+  };
+
+  // Remove all DOM objects from the scene
+  removeDOMObjectsFromScene = async (): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      try {
+        // Unmount all DOM objects
+        this.domObjects.forEach((obj) => {
+          // remove ready class
+          obj.addClass('out');
+          // wait 250 ms
+          setTimeout(() => {
+            obj.unmount();
+          }, 500);
+        });
+
+        // Clear the array
+        this.domObjects = [];
+
+        resolve();
+      } catch (error) {
+        console.error('Error removing DOM objects:', error);
+        resolve(); // Still resolve to prevent blocking
+      }
+    });
+  };
+
+  // Animate out and cleanup
+  animateOutScene = async () => {
+    return new Promise<void>((resolve) => {
+      if (this.sceneObjects.length === 0) {
+        resolve();
+        return;
+      }
+
+      let totalMeshes = 0;
+      let completedAnimations = 0;
+      const animationFuncs: Function[] = []; // Track all animation functions
+
+      this.sceneObjects.forEach((group) => {
+        if (group instanceof THREE.Group) {
+          group.traverse((child) => {
+            if (child instanceof THREE.Mesh) totalMeshes++;
+          });
+        }
+      });
+
+      this.sceneObjects.forEach((group) => {
+        if (group instanceof THREE.Group) {
+          group.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              const material = child.material as THREE.MeshBasicMaterial;
+              material.transparent = true;
+
+              const animation = anime({
+                targets: [child.position, material],
+                y: 50,
+                opacity: 0,
+                duration: 800,
+                // delay: child.position.x * 50,
+                delay: (child.position.x + child.position.y) * 30,
+                // easing: 'cubicBezier(1,0,1,.48)',
+                easing: 'cubicBezier(1,-0.05,1,.48)',
+                complete: () => {
+                  completedAnimations++;
+                  if (completedAnimations === totalMeshes) {
+                    // Clean up all animation functions
+                    animationFuncs.forEach((func) => {
+                      this.removeAnimationFromQueue(func);
+                    });
+
+                    // Cleanup scene objects
+                    this.sceneObjects.forEach((obj) => {
+                      this.app.scene.remove(obj);
+                      if (obj instanceof THREE.Group) {
+                        obj.traverse((groupChild) => {
+                          if (groupChild instanceof THREE.Mesh) {
+                            groupChild.geometry.dispose();
+                            groupChild.material.dispose();
+                          }
+                        });
+                      }
+                    });
+                    this.sceneObjects = [];
+                    resolve();
+                  }
+                },
+              });
+
+              let start: number | null = null;
+              let isPaused = false;
+
+              const animationFunc = (timestamp: number) => {
+                if (isPaused) return;
+                if (!start) start = timestamp;
+                requestAnimationFrame(() => {
+                  animation.tick(timestamp);
+                });
+                console.log('Animating out');
+              };
+
+              animationFuncs.push(animationFunc);
+              this.addAnimationToQueue(animationFunc);
+            }
+          });
+        }
+      });
+    });
   };
 }

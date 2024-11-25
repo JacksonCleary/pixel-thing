@@ -8,7 +8,6 @@ button {
   padding: 0.5rem;
   position: relative;
   top: 0;
-  visibility: hidden;
   /* transition */
   opacity: 0;
   pointer-events: none;
@@ -20,7 +19,11 @@ button {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
-    visibility: visible;
+
+    &.out {
+      opacity: 0;
+      padding-top: 1rem;
+    }
   }
 
   &:hover {

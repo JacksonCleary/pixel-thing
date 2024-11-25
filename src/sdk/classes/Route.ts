@@ -15,6 +15,8 @@ export class Route {
   title: string;
   permalink: string;
 
+  private static mountedRoutes: Set<string> = new Set();
+
   constructor(route: routeInstance) {
     window.___debug.log(`Route ${name} registered`);
 
@@ -92,6 +94,7 @@ export class Route {
   // A method to be overridden by child classes
   deregister() {
     window.___debug.log('Deregistering route');
+    Route.mountedRoutes.delete(this.permalink);
     this.cleanup(); // Call cleanup to remove all event listeners and custom events
   }
 }

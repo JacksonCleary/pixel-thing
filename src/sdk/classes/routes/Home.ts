@@ -5,16 +5,43 @@ import anime from 'animejs/lib/anime.es.js';
 import { routeInstance } from '../../constants/routing';
 import { Box } from '../shapes/box';
 import { convertToScreenCoords, convertGroupDimensions } from '../../util/size';
+import { Button } from '../elements/ButtonElement';
 
 export class Home extends Route {
   group: THREE.Group;
   interactiveGroupArray: THREE.Mesh[] = [];
   animationCompleteTick: number = 0;
-  button: HTMLElement;
+  button: Button;
 
   constructor(routeInstance: routeInstance) {
     super(routeInstance);
+    this.button = new Button(
+      'start',
+      'View Gallery',
+      'interactive-button',
+      'Click to view gallery'
+    );
+    this.button.mount(document.getElementById('ui')!);
+    this.setupButtonEvents();
     this.render();
+  }
+
+  private setupButtonEvents(): void {
+    this.button.addEventListener('mouseenter', () => {
+      this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
+        mesh.position.y -= 1;
+      });
+    });
+
+    this.button.addEventListener('mouseleave', () => {
+      this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
+        mesh.position.y += 1;
+      });
+    });
+
+    this.button.addEventListener('click', async () => {
+      await this.director.findRoute('/404');
+    });
   }
 
   createAnimation(mesh: THREE.Mesh, x: number, y: number, height: number) {
@@ -48,8 +75,9 @@ export class Home extends Route {
     let start: number | null = null;
     const animationFunc = (timestamp: number) => {
       if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      animation.tick(elapsed);
+      requestAnimationFrame(() => {
+        animation.tick(timestamp);
+      });
     };
     this.director.addAnimationToQueue(animationFunc);
   }
@@ -75,7 +103,6 @@ export class Home extends Route {
           depth: 1,
           color: mainColor,
           x: x - width / 2,
-          //   y: y - height / 2 - 20, // Start offscreen
           y: 50,
           z: 0,
         });
@@ -93,6 +120,7 @@ export class Home extends Route {
     }
 
     this.director.addShapeToScene(group);
+    this.director.addDOMObjectToDOMObjects(this.button);
 
     // for use on animation complete
     console.log('Group:', group);
@@ -101,50 +129,33 @@ export class Home extends Route {
 
   render() {
     super.render();
-    this.button = document.getElementById('start');
     if (this.button) {
-      this.addEventListener(this.button, 'mouseenter', () => {
-        this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
-          mesh.position.y -= 1;
-        });
-      });
-      this.addEventListener(this.button, 'mouseleave', () => {
-        this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
-          mesh.position.y += 1;
-        });
-      });
       this.createBoxRectangle();
     }
   }
 
   // Method to position button after animation
-  animationComplete() {
+  animationComplete(): void {
     const boundingBox = new THREE.Box3().setFromObject(this.group);
     const topLeft = {
       x: boundingBox.min.x,
       y: boundingBox.max.y,
     };
-    console.log('Group top left:', topLeft);
+
     const screenPos = convertToScreenCoords(
       topLeft.x,
       topLeft.y,
       this.director.app.camera
     );
-    console.log('Screen position:', screenPos);
+
     const dimensions = convertGroupDimensions(
       this.group,
       this.director.app.camera,
       'toScreen'
     );
-    console.log('Group dimensions:', dimensions);
-    const button = document.getElementById('start');
-    if (button) {
-      button.style.position = 'absolute';
-      button.style.left = `${screenPos.x}px`;
-      button.style.top = `${screenPos.y}px`;
-      button.style.width = `${dimensions.width}px`;
-      button.style.height = `${dimensions.height}px`;
-      button.classList.add('ready');
-    }
+
+    this.button.setPosition(screenPos.x, screenPos.y);
+    this.button.setDimensions(dimensions.width, dimensions.height);
+    this.button.addClass('ready');
   }
 }
