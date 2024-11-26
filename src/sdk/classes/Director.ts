@@ -4,9 +4,8 @@ import { SHIMThreeasy } from '../third-party/models/threeasy';
 import { Router } from './Router';
 import { SceneObject } from './shapes/shape';
 import { iColorScheme, getColorScheme } from '../constants/color';
-import * as THREE from 'three';
-import anime from 'animejs';
 import { DOMElement } from './elements/DOMElement';
+import { Animation } from './animation/animation';
 
 export interface IDirector {
   animationQueue: Array<Function>;
@@ -30,7 +29,7 @@ export class Director implements IDirector {
   private static instance: Director | null = null;
   private sceneObjects: SceneObject[] = [];
   private domObjects: DOMElement<HTMLElement>[] = [];
-  private activeAnimations = new Map<string, boolean>();
+  private animator: Animation;
 
   app: SHIMThreeasy;
   controls: OrbitControls;
@@ -41,6 +40,7 @@ export class Director implements IDirector {
     this.app = app;
     this.controls = controls;
     this.assignColorScheme();
+    this.animator = new Animation(this);
   }
 
   public static getInstance(app?, controls?): Director {
@@ -70,6 +70,7 @@ export class Director implements IDirector {
     // small wait time for visual effect
     await new Promise((resolve) => setTimeout(resolve, 150));
     await this.animateOutScene();
+    console.log('Navigating to:', path);
     const router = new Router();
     router.route(path);
   };
@@ -143,94 +144,18 @@ export class Director implements IDirector {
 
   // Animate out and cleanup
   animateOutScene = async () => {
+    console.log('Animating out scene');
+    if (this.sceneObjects.length === 0) {
+      return Promise.resolve();
+    }
     return new Promise<void>((resolve) => {
-      if (this.sceneObjects.length === 0) {
-        resolve();
-        return;
-      }
-
-      let totalMeshes = 0;
-      let completedAnimations = 0;
-      const animationFuncs: Function[] = []; // Track all animation functions
-
-      this.sceneObjects.forEach((group) => {
-        if (group instanceof THREE.Group) {
-          group.traverse((child) => {
-            if (child instanceof THREE.Mesh) totalMeshes++;
-          });
-        }
-      });
-
-      this.sceneObjects.forEach((group) => {
-        if (group instanceof THREE.Group) {
-          group.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              const meshId = `${child.uuid}`;
-
-              const material = child.material as THREE.MeshBasicMaterial;
-              material.transparent = true;
-
-              // Check if mesh is already being animated
-              if (this.activeAnimations.has(meshId)) {
-                console.warn(
-                  `Duplicate animation detected for mesh: ${meshId}`
-                );
-                return;
-              }
-
-              const animation = anime({
-                targets: [child.position, material],
-                y: 50,
-                opacity: 0,
-                duration: 800,
-                // delay: child.position.x * 50,
-                delay: (child.position.x + child.position.y) * 30,
-                // easing: 'cubicBezier(1,0,1,.48)',
-                easing: 'cubicBezier(1,-0.05,1,.48)',
-                complete: () => {
-                  this.activeAnimations.delete(meshId);
-                  completedAnimations++;
-                  if (completedAnimations === totalMeshes) {
-                    // Clean up all animation functions
-                    animationFuncs.forEach((func) => {
-                      this.removeAnimationFromQueue(func);
-                    });
-
-                    // Cleanup scene objects
-                    this.sceneObjects.forEach((obj) => {
-                      this.app.scene.remove(obj);
-                      if (obj instanceof THREE.Group) {
-                        obj.traverse((groupChild) => {
-                          if (groupChild instanceof THREE.Mesh) {
-                            groupChild.geometry.dispose();
-                            groupChild.material.dispose();
-                          }
-                        });
-                      }
-                    });
-                    this.sceneObjects = [];
-                    resolve();
-                  }
-                },
-              });
-
-              let start: number | null = null;
-              let isPaused = false;
-
-              const animationFunc = (timestamp: number) => {
-                if (isPaused) return;
-                if (!start) start = timestamp;
-
-                // Directly tick animation
-                console.log('animating out');
-                animation.tick(timestamp);
-              };
-
-              animationFuncs.push(animationFunc);
-              this.addAnimationToQueue(animationFunc);
-            }
-          });
-        }
+      this.animator.animateScene({
+        sceneObjects: this.sceneObjects,
+        isEntry: false,
+        onComplete: () => {
+          this.sceneObjects = [];
+          resolve();
+        },
       });
     });
   };

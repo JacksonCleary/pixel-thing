@@ -1,11 +1,11 @@
 // a child of Route class
 import { Route } from '../Route';
 import * as THREE from 'three';
-import anime from 'animejs/lib/anime.es.js';
 import { routeInstance } from '../../constants/routing';
 import { Box } from '../shapes/box';
 import { convertToScreenCoords, convertGroupDimensions } from '../../util/size';
 import { Button } from '../elements/ButtonElement';
+import { Animation } from '../animation/animation';
 
 export class Home extends Route {
   group: THREE.Group;
@@ -45,41 +45,20 @@ export class Home extends Route {
   }
 
   createAnimation(mesh: THREE.Mesh, x: number, y: number, height: number) {
-    // Type assertion to specify material type
-    const material = mesh.material as THREE.MeshBasicMaterial; // Or other specific material type
-    material.transparent = true;
-    material.opacity = 0; // Start invisible
-
-    const animation = anime({
-      targets: [mesh.position, mesh.material],
-      y: y - height / 2,
-      opacity: 1,
+    const animator = new Animation(this.director);
+    animator.createMeshAnimation({
+      mesh,
+      position: { x, y: y - height / 2 },
       duration: 500,
       delay: (x + y) * 50,
-      easing: 'easeOutQuad',
-      autoplay: false,
-      complete: () => {
+      isEntry: true,
+      onComplete: () => {
         this.animationCompleteTick++;
-        animation.pause();
-        this.director.removeAnimationFromQueue(animationFunc);
-        // Check if all animations are complete
-        const allComplete =
-          this.animationCompleteTick === this.group?.children?.length;
-        if (allComplete) {
-          console.log('All animations complete!');
+        if (this.animationCompleteTick === this.group?.children?.length) {
           this.animationComplete();
         }
       },
     });
-
-    let start: number | null = null;
-    const animationFunc = (timestamp: number) => {
-      if (!start) start = timestamp;
-      requestAnimationFrame(() => {
-        animation.tick(timestamp);
-      });
-    };
-    this.director.addAnimationToQueue(animationFunc);
   }
 
   createBoxRectangle() {
