@@ -23,6 +23,7 @@ button {
     &.out {
       opacity: 0;
       padding-top: 1rem;
+      pointer-events: none;
     }
   }
 

@@ -30,6 +30,7 @@ export class Director implements IDirector {
   private static instance: Director | null = null;
   private sceneObjects: SceneObject[] = [];
   private domObjects: DOMElement<HTMLElement>[] = [];
+  private activeAnimations = new Map<string, boolean>();
 
   app: SHIMThreeasy;
   controls: OrbitControls;
@@ -124,8 +125,8 @@ export class Director implements IDirector {
           // remove ready class
           obj.addClass('out');
           // wait 250 ms
-          setTimeout(() => {
-            obj.unmount();
+          setTimeout(async () => {
+            await obj.unmount();
           }, 500);
         });
 
@@ -164,8 +165,18 @@ export class Director implements IDirector {
         if (group instanceof THREE.Group) {
           group.traverse((child) => {
             if (child instanceof THREE.Mesh) {
+              const meshId = `${child.uuid}`;
+
               const material = child.material as THREE.MeshBasicMaterial;
               material.transparent = true;
+
+              // Check if mesh is already being animated
+              if (this.activeAnimations.has(meshId)) {
+                console.warn(
+                  `Duplicate animation detected for mesh: ${meshId}`
+                );
+                return;
+              }
 
               const animation = anime({
                 targets: [child.position, material],
@@ -177,6 +188,7 @@ export class Director implements IDirector {
                 // easing: 'cubicBezier(1,0,1,.48)',
                 easing: 'cubicBezier(1,-0.05,1,.48)',
                 complete: () => {
+                  this.activeAnimations.delete(meshId);
                   completedAnimations++;
                   if (completedAnimations === totalMeshes) {
                     // Clean up all animation functions
@@ -208,10 +220,10 @@ export class Director implements IDirector {
               const animationFunc = (timestamp: number) => {
                 if (isPaused) return;
                 if (!start) start = timestamp;
-                requestAnimationFrame(() => {
-                  animation.tick(timestamp);
-                });
-                console.log('Animating out');
+
+                // Directly tick animation
+                console.log('animating out');
+                animation.tick(timestamp);
               };
 
               animationFuncs.push(animationFunc);

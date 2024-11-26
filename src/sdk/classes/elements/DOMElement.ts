@@ -20,7 +20,7 @@ export abstract class DOMElement<T extends HTMLElement> {
     console.log(`Mounted element ${this.element.id}`);
   }
 
-  unmount(): void {
+  async unmount(): Promise<void> {
     if (!this.isMounted) {
       console.warn(`Element ${this.element.id} is not mounted`);
       return;

@@ -9,23 +9,21 @@ export class Router {
 
   constructor() {
     // Remove any existing listeners first
-    if (this.popstateHandler) {
-      window.removeEventListener('popstate', this.popstateHandler);
-    }
-
-    // Create bound handler
-    this.popstateHandler = (event: PopStateEvent) => {
-      console.log('Popstate triggered by:', {
-        state: event.state,
-        referrer: document.referrer,
-        currentURL: window.location.href,
-      });
-      const path = event.state?.path || '/';
-      this.navigate(path, true);
-    };
-
-    // Add single listener
-    window.addEventListener('popstate', this.popstateHandler);
+    // if (this.popstateHandler) {
+    //   window.removeEventListener('popstate', this.popstateHandler);
+    // }
+    // // Create bound handler
+    // this.popstateHandler = (event: PopStateEvent) => {
+    //   console.log('Popstate triggered by:', {
+    //     state: event.state,
+    //     referrer: document.referrer,
+    //     currentURL: window.location.href,
+    //   });
+    //   const path = event.state?.path || '/';
+    //   this.navigate(path, true);
+    // };
+    // // Add single listener
+    // window.addEventListener('popstate', this.popstateHandler);
   }
 
   destroy() {
