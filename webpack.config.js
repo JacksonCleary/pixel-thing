@@ -2,16 +2,18 @@ const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const CopywebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   context: __dirname,
   entry: {
     app: './src/app.ts',
+    sw: './src/sdk/services/sw.ts',
   },
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
+    clean: true, // Clean dist folder on each build
   },
   module: {
     rules: [
@@ -28,6 +30,11 @@ module.exports = {
         test: /\.(png|gif|jpg|jpeg|svg|xml)$/,
         use: ['url-loader'],
       },
+      {
+        test: /\.html$/,
+        exclude: /index\.html$/,
+        type: 'asset/source',
+      },
     ],
   },
   resolve: {
@@ -37,7 +44,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'src/index.html',
     }),
-    new CopywebpackPlugin({
+    new CopyWebpackPlugin({
       patterns: [
         {
           from: 'src/assets/**/*',
@@ -47,10 +54,19 @@ module.exports = {
     }),
   ],
   devServer: {
-    static: path.join(__dirname, 'dist'),
+    static: {
+      directory: path.join(__dirname, 'dist'),
+      publicPath: '/',
+      watch: true,
+    },
     historyApiFallback: true, // Redirect all 404s to index.html
     hot: true,
-    open: true,
     port: 8080,
+    headers: {
+      'Service-Worker-Allowed': '/',
+    },
+    // devMiddleware: {
+    //   writeToDisk: true, // Write files to disk for debugging
+    // },
   },
 };

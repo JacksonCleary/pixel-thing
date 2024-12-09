@@ -48,21 +48,25 @@ export class Router {
   }
 
   route(path: string) {
-    console.log(path);
+    console.log('Route transition:', {
+      from: this.currentRoute?.permalink,
+      to: path,
+      hasCurrentRoute: !!this.currentRoute,
+    });
     const route = ROUTES.find((r) => r.permalink === path);
     try {
       // Cleanup previous route if exists
+      console.log('currentRoute', this.currentRoute);
       if (this.currentRoute) {
+        console.log('current route deregistered');
         this.currentRoute.deregister();
       }
 
       if (route) {
         window.___debug.log(`Navigating to ${route.title}`);
-
         // Type guard to ensure component is valid
         if (typeof route.component === 'function') {
           this.currentRoute = new route.component(route);
-          console.log(this.currentRoute);
         } else {
           throw new Error(`Invalid component for route: ${path}`);
         }
@@ -72,6 +76,7 @@ export class Router {
         this.route('/404');
       }
     } catch (error) {
+      console.log('error', error);
       window.___debug.log(`Error rendering route: ${error.message}`, 'error');
       this.route('/404');
     }
@@ -81,6 +86,7 @@ export class Router {
 
     // Update URL
     this.updateURL(path);
+    console.log('currentRoute', this.currentRoute);
   }
 
   public updateURL(

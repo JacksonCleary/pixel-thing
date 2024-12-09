@@ -22,7 +22,8 @@ body {
 }
 
 #scene,
-#ui {
+#ui,
+.template-container {
   left: 0;
   position: absolute;
   top: 0;
@@ -34,7 +35,8 @@ body {
 
 #app,
 #scene,
-#ui {
+#ui,
+.template-container {
   height: 100%;
   width: 100%;
 }

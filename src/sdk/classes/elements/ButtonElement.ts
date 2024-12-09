@@ -4,14 +4,19 @@ import { DOMElement } from './DOMElement';
 
 export class Button extends DOMElement<HTMLButtonElement> {
   constructor(
+    instance: HTMLButtonElement | string,
     id: string,
-    text: string,
-    className: string = '',
+    className?: string,
+    text?: string,
     ariaLabel?: string
   ) {
-    super('button', id, className);
-    this.setText(text);
-    this.setupAccessibility(ariaLabel || text);
+    super(instance, className, id);
+    if (text) {
+      this.setText(text);
+    }
+    if (ariaLabel) {
+      this.setupAccessibility(ariaLabel);
+    }
   }
 
   private setupAccessibility(ariaLabel: string): void {

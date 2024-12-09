@@ -18,6 +18,8 @@
   "author": "Tarek Jellali",
   "license": "MIT",
   "devDependencies": {
+    "@types/serviceworker": "^0.0.107",
+    "@types/webpack-env": "^1.18.5",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/eslint-plugin-tslint": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",

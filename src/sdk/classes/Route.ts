@@ -1,6 +1,7 @@
 // A parent route consumed by the router
 import { routeInstance } from '../constants/routing';
 import { Director, IDirector } from './Director';
+import { TemplateService } from '../services/TemplateService';
 
 export class Route {
   eventListeners: Array<{
@@ -16,10 +17,11 @@ export class Route {
   permalink: string;
 
   private static mountedRoutes: Set<string> = new Set();
+  protected templateService: TemplateService;
+  private template: DocumentFragment | null = null;
+  private mountPoint: HTMLElement | null = null;
 
   constructor(route: routeInstance) {
-    window.___debug.log(`Route ${name} registered`);
-
     this.director = Director.getInstance();
 
     // Bind the render method to the instance
@@ -28,10 +30,16 @@ export class Route {
     this.deregister = this.deregister.bind(this);
 
     // emit a custom event when the route is registered
-    this.emit('routeRegistered', name);
 
     this.title = route.title;
     this.permalink = route.permalink;
+
+    this.templateService = new TemplateService();
+    this.mountPoint = document.getElementById('ui');
+    window.___debug.log(`Route ${this.permalink} registered`);
+    // Load template based on route permalink
+    // this.loadTemplate();
+    this.emit('routeRegistered', this.permalink);
   }
 
   addEventListener(
@@ -87,8 +95,12 @@ export class Route {
   }
 
   // A method to be overridden by child classes
-  render() {
-    window.___debug.log('Rendering route');
+  protected render(): void {
+    if (!this.template || !this.mountPoint) return;
+
+    // Clone template to avoid mutating cached version
+    const content = this.template.cloneNode(true) as DocumentFragment;
+    this.mountPoint.appendChild(content);
   }
 
   // A method to be overridden by child classes
@@ -96,6 +108,28 @@ export class Route {
     window.___debug.log('Deregistering route');
     Route.mountedRoutes.delete(this.permalink);
     this.cleanup(); // Call cleanup to remove all event listeners and custom events
+    console.log('this.mountPoint', this.mountPoint);
+    // Clean up template
+    if (this.mountPoint) {
+      this.mountPoint.innerHTML = '';
+    }
+    // remove template HTML from DOM
+
+    this.template = null;
+  }
+
+  async loadTemplate(): Promise<void> {
+    try {
+      // Remove leading slash for template path
+      const templatePath = this.permalink.replace(/^\//, '');
+      const templateSlug = templatePath || 'home';
+      this.template = await this.templateService.fetchTemplate(templateSlug);
+      window.___debug.log(`Template loaded for ${templateSlug}`);
+      console.log(this.template);
+      this.render();
+    } catch (error) {
+      console.error(`Failed to load template for ${this.permalink}:`, error);
+    }
   }
 }
 

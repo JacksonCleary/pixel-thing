@@ -4,10 +4,30 @@ export abstract class DOMElement<T extends HTMLElement> {
   protected eventListeners: { type: string; handler: EventListener }[] = [];
   private isMounted: boolean = false;
 
-  constructor(elementType: string, id: string, className: string = '') {
-    this.element = document.createElement(elementType) as T;
-    this.element.id = id;
-    if (className) this.element.classList.add(className);
+  constructor(
+    elementOrType: string | T,
+    className: string = '',
+    id: string = ''
+  ) {
+    if (typeof elementOrType === 'string') {
+      // Create new element
+      this.element = document.createElement(elementOrType) as T;
+    } else {
+      // Use existing element
+      this.element = elementOrType;
+      this.isMounted = document.body.contains(this.element);
+    }
+
+    console.log('class name', className);
+
+    if (!this.element.id) {
+      this.element.id =
+        id || `${elementOrType}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    if (className) {
+      this.addClass(className);
+    }
   }
 
   mount(parent: HTMLElement = document.body): void {
@@ -62,7 +82,11 @@ export abstract class DOMElement<T extends HTMLElement> {
   }
 
   addClass(className: string): void {
-    this.element.classList.add(className);
+    // Split multiple classes and add individually
+    const classes = className.split(/\s+/).filter((c) => c.length > 0);
+    classes.forEach((c) => {
+      if (c) this.element.classList.add(c);
+    });
   }
 
   removeClass(className: string): void {

@@ -15,15 +15,25 @@ export class Home extends Route {
 
   constructor(routeInstance: routeInstance) {
     super(routeInstance);
-    this.button = new Button(
-      'start',
-      'View Gallery',
-      'interactive-button',
-      'Click to view gallery'
-    );
-    this.button.mount(document.getElementById('ui')!);
+    this.init();
+  }
+
+  private async init(): Promise<void> {
+    await this.loadTemplate(); // Template loading handled by Route
+    await this.setupButton();
     this.setupButtonEvents();
-    this.render();
+    this.start();
+  }
+
+  private async setupButton(): Promise<void> {
+    const buttonElement = document.getElementById(
+      'home-gallery-button'
+    ) as HTMLButtonElement;
+    if (!buttonElement) {
+      throw new Error('Gallery button not found in template');
+    }
+
+    this.button = new Button(buttonElement, 'home-gallery-button');
   }
 
   private setupButtonEvents(): void {
@@ -106,8 +116,7 @@ export class Home extends Route {
     this.group = group;
   }
 
-  render() {
-    super.render();
+  start() {
     if (this.button) {
       this.createBoxRectangle();
     }

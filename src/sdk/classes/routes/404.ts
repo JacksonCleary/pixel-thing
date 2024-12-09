@@ -1,11 +1,11 @@
 // a child of Route class
 import { Route } from '../Route';
 import * as THREE from 'three';
-import anime from 'animejs/lib/anime.es.js';
 import { routeInstance } from '../../constants/routing';
 import { Box } from '../shapes/box';
 import { convertToScreenCoords, convertGroupDimensions } from '../../util/size';
 import { Button } from '../elements/ButtonElement';
+import { Animation } from '../animation/animation';
 
 export class Four04 extends Route {
   group: THREE.Group;
@@ -15,15 +15,29 @@ export class Four04 extends Route {
 
   constructor(routeInstance: routeInstance) {
     super(routeInstance);
-    this.button = new Button(
-      'start',
-      'View Gallery',
-      'interactive-button',
-      'Click to view gallery'
-    );
-    this.button.mount(document.getElementById('ui')!);
+    this.init();
+  }
+
+  private async init(): Promise<void> {
+    await this.loadTemplate(); // Template loading handled by Route
+    await this.setupButton();
     this.setupButtonEvents();
-    this.render();
+    this.start();
+  }
+
+  private async setupButton(): Promise<void> {
+    const buttonElement = document.getElementById(
+      '404-home-button'
+    ) as HTMLButtonElement;
+    if (!buttonElement) {
+      throw new Error('404 Home Button not found in template');
+    }
+
+    this.button = new Button(
+      buttonElement,
+      'home-gallery-button',
+      'interactive-button'
+    );
   }
 
   private setupButtonEvents(): void {
@@ -45,41 +59,20 @@ export class Four04 extends Route {
   }
 
   createAnimation(mesh: THREE.Mesh, x: number, y: number, height: number) {
-    // Type assertion to specify material type
-    const material = mesh.material as THREE.MeshBasicMaterial; // Or other specific material type
-    material.transparent = true;
-    material.opacity = 0; // Start invisible
-
-    const animation = anime({
-      targets: [mesh.position, mesh.material],
-      y: y - height / 2,
-      opacity: 1,
+    const animator = new Animation(this.director);
+    animator.createMeshAnimation({
+      mesh,
+      position: { x, y: y - height / 2 },
       duration: 500,
       delay: (x + y) * 50,
-      easing: 'easeOutQuad',
-      autoplay: false,
-      complete: () => {
+      isEntry: true,
+      onComplete: () => {
         this.animationCompleteTick++;
-        animation.pause();
-        this.director.removeAnimationFromQueue(animationFunc);
-        // Check if all animations are complete
-        const allComplete =
-          this.animationCompleteTick === this.group?.children?.length;
-        if (allComplete) {
-          console.log('All animations complete!');
+        if (this.animationCompleteTick === this.group?.children?.length) {
           this.animationComplete();
         }
       },
     });
-
-    let start: number | null = null;
-    const animationFunc = (timestamp: number) => {
-      if (!start) start = timestamp;
-      requestAnimationFrame(() => {
-        animation.tick(timestamp);
-      });
-    };
-    this.director.addAnimationToQueue(animationFunc);
   }
 
   createBoxRectangle() {
@@ -127,8 +120,7 @@ export class Four04 extends Route {
     this.group = group;
   }
 
-  render() {
-    super.render();
+  start() {
     if (this.button) {
       this.createBoxRectangle();
     }
