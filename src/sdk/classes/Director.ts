@@ -2,6 +2,7 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { SHIMThreeasy } from '../third-party/models/threeasy';
 import { Router } from './Router';
+import { Route } from './Route';
 import { SceneObject } from './shapes/shape';
 import { iColorScheme, getColorScheme } from '../constants/color';
 import { DOMElement } from './elements/DOMElement';
@@ -23,6 +24,8 @@ export interface IDirector {
   animateOutScene: () => Promise<void>;
   addDOMObjectToDOMObjects: (object: DOMElement<HTMLElement>) => void;
   removeDOMObjectsFromScene: () => Promise<void>;
+  getCurrentRoute: () => Route | null;
+  setCurrentRoute: (route: Route) => void;
 }
 
 export class Director implements IDirector {
@@ -30,6 +33,8 @@ export class Director implements IDirector {
   private sceneObjects: SceneObject[] = [];
   private domObjects: DOMElement<HTMLElement>[] = [];
   private animator: Animation;
+  private currentRoute: Route;
+  private isRouting: boolean = false;
 
   app: SHIMThreeasy;
   controls: OrbitControls;
@@ -39,6 +44,7 @@ export class Director implements IDirector {
   constructor(app, controls) {
     this.app = app;
     this.controls = controls;
+    this.currentRoute = null;
     this.assignColorScheme();
     this.animator = new Animation(this);
   }
@@ -66,6 +72,10 @@ export class Director implements IDirector {
 
   // Update route finding to wait for animation
   findRoute = async (path: string) => {
+    if (this.isRouting) {
+      return;
+    }
+    this.isRouting = true;
     await this.removeDOMObjectsFromScene();
     // small wait time for visual effect
     await new Promise((resolve) => setTimeout(resolve, 150));
@@ -73,7 +83,16 @@ export class Director implements IDirector {
     console.log('Navigating to:', path);
     const router = new Router();
     router.route(path);
+    this.isRouting = false;
   };
+
+  getCurrentRoute(): Route | null {
+    return this.currentRoute;
+  }
+
+  setCurrentRoute(route: Route): void {
+    this.currentRoute = route;
+  }
 
   animate = () => {
     requestAnimationFrame(this.animate);
@@ -109,7 +128,15 @@ export class Director implements IDirector {
 
   // Assign color scheme
   assignColorScheme = (scheme?: string): void => {
-    this.colorScheme = getColorScheme(scheme);
+    const { name, colorScheme } = getColorScheme(scheme);
+    this.colorScheme = colorScheme;
+    // remove other body classes that start with 'scheme-'
+    document.body.className = document.body.className.replace(
+      /\bscheme-\S+/g,
+      ''
+    );
+    // add new color scheme class
+    document.body.classList.add(`scheme-${name}`);
   };
 
   // Update method signatures to use DOMElement

@@ -1,10 +1,16 @@
 :root {
   /* Font */
-  --font-family: 'Courier New', Courier, monospace;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  --font-family: var(--font-mono);
 
   /* Transition */
   --transition-delay-short: 0.2s;
   --transition-delay-medium: 0.5s;
   --transition-delay-long: 1s;
-  --transition-easing: cubic-bezier(0.77, 0, 0.175, 1);
+  --transition-easing-cubic: cubic-bezier(0.77, 0, 0.175, 1);
+  --transition-easing-in-out: ease-in-out;
+  --transition-easing-ease: ease;
+
+  /* Type */
+  --line-height: 1.5;
 }

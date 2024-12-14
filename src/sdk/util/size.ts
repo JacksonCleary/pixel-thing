@@ -1,36 +1,52 @@
 import * as THREE from 'three';
 
-// Convert world to screen coordinates
 export const convertToScreenCoords = (
   worldX: number,
   worldY: number,
   camera: THREE.Camera
 ) => {
+  const canvas = document.querySelector('canvas');
+  if (!canvas) throw new Error('Canvas not found');
+
+  const canvasRect = canvas.getBoundingClientRect();
+
+  // Project world coordinates to NDC
   const vector = new THREE.Vector3(worldX, worldY, 0);
   vector.project(camera);
-  const x = ((vector.x + 1) * window.innerWidth) / 2;
-  const y = ((-vector.y + 1) * window.innerHeight) / 2;
-  return { x, y };
+
+  // Calculate canvas position
+  const canvasX = ((vector.x + 1) * canvasRect.width) / 2;
+  const canvasY = ((-vector.y + 1) * canvasRect.height) / 2;
+
+  return {
+    x: canvasX,
+    y: canvasY,
+  };
 };
 
-// Convert screen to world coordinates
 export const convertToWorldCoords = (
   screenX: number,
   screenY: number,
   camera: THREE.Camera
 ) => {
-  // Convert screen coordinates to normalized device coordinates (-1 to +1)
-  const x = (screenX * 2) / window.innerWidth - 1;
-  const y = -(screenY * 2) / window.innerHeight + 1;
+  const canvas = document.querySelector('canvas');
+  if (!canvas) throw new Error('Canvas not found');
+  const canvasRect = canvas.getBoundingClientRect();
 
-  // Create vector and unproject
+  // Convert to canvas-relative coordinates
+  const canvasX = screenX - canvasRect.left;
+  const canvasY = screenY - canvasRect.top;
+
+  // Convert to NDC
+  const x = (canvasX * 2) / canvasRect.width - 1;
+  const y = -(canvasY * 2) / canvasRect.height + 1;
+
   const vector = new THREE.Vector3(x, y, 0);
   vector.unproject(camera);
 
   return { x: vector.x, y: vector.y };
 };
 
-// Bidirectional group dimension conversions
 export const convertGroupDimensions = (
   group: THREE.Group,
   camera: THREE.Camera,
@@ -39,35 +55,24 @@ export const convertGroupDimensions = (
   const boundingBox = new THREE.Box3().setFromObject(group);
 
   if (direction === 'toScreen') {
+    // Get screen coordinates once for each corner
     const topLeft = convertToScreenCoords(
       boundingBox.min.x,
       boundingBox.max.y,
       camera
     );
+
     const bottomRight = convertToScreenCoords(
       boundingBox.max.x,
       boundingBox.min.y,
       camera
     );
 
+    // Calculate dimensions from screen coordinates
     return {
       width: bottomRight.x - topLeft.x,
       height: bottomRight.y - topLeft.y,
       position: topLeft,
-    };
-  } else {
-    // Convert screen dimensions back to world units
-    const worldTopLeft = convertToWorldCoords(0, 0, camera);
-    const worldBottomRight = convertToWorldCoords(
-      window.innerWidth,
-      window.innerHeight,
-      camera
-    );
-
-    return {
-      width: worldBottomRight.x - worldTopLeft.x,
-      height: worldBottomRight.y - worldTopLeft.y,
-      position: worldTopLeft,
     };
   }
 };

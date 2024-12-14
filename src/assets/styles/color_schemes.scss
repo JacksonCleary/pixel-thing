@@ -1,0 +1,29 @@
+/* Color Schemes */
+:root {
+  /* Color */
+  /* Default */
+  --color-default-dark: #212121;
+  --color-default-light: #ebdbb2;
+  --color-default-green: #7eaa6e;
+  --color-default-orange: #f77c1b;
+  --color-default-red: #c93f30;
+  --color-default-blue: #448488;
+  --color-default-yellow: #e5ad2e;
+  --body-bg-default: url('assets/images/bg-infra-flowers.jpg');
+
+  /* Color Scheme Vars */
+  --color-dark: var(--color-default-dark);
+  --color-light: var(--color-default-light);
+  --color-green: var(--color-default-green);
+  --color-orange: var(--color-default-orange);
+  --color-red: var(--color-default-red);
+  --color-blue: var(--color-default-blue);
+  --color-yellow: var(--color-default-yellow);
+  --body-bg: var(--body-bg-default);
+
+  /* TODO @daniel - add more schemes */
+  /* body.scheme-foo {} */
+
+  /* Assignment Vars */
+  --app-bg: var(--color-dark);
+}

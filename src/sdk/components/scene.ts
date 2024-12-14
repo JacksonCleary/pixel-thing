@@ -26,8 +26,8 @@ const start = (sceneEl: HTMLElement) => {
   // controls.enableZoom = false;
 
   const director = Director.getInstance(app, controls);
-  const tertiaryColor = director.colorScheme.tertiary;
-  app.scene.background = new THREE.Color(tertiaryColor);
+  const darkColor = director.colorScheme.dark;
+  app.scene.background = new THREE.Color(darkColor);
 
   director.start();
 };

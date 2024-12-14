@@ -1,0 +1,9 @@
+.typewriter-char {
+  opacity: 0;
+  transition: opacity var(--transition-delay-short)
+    var(--transition-easing-ease);
+
+  &.visible {
+    opacity: 1;
+  }
+}

@@ -9,7 +9,6 @@ import { Animation } from '../animation/animation';
 
 export class Home extends Route {
   group: THREE.Group;
-  interactiveGroupArray: THREE.Mesh[] = [];
   animationCompleteTick: number = 0;
   button: Button;
 
@@ -38,14 +37,19 @@ export class Home extends Route {
 
   private setupButtonEvents(): void {
     this.button.addEventListener('mouseenter', () => {
-      this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
-        mesh.position.y -= 1;
+      // Use userData to find interactive meshes
+      this.group.children.forEach((child: THREE.Mesh) => {
+        if (child.userData.isInteractive) {
+          child.position.y -= 1;
+        }
       });
     });
 
     this.button.addEventListener('mouseleave', () => {
-      this.interactiveGroupArray.forEach((mesh: THREE.Mesh) => {
-        mesh.position.y += 1;
+      this.group.children.forEach((child: THREE.Mesh) => {
+        if (child.userData.isInteractive) {
+          child.position.y += 1;
+        }
       });
     });
 
@@ -77,15 +81,13 @@ export class Home extends Route {
     const boxes: THREE.Mesh[][] = [];
     const group = new THREE.Group();
 
-    this.interactiveGroupArray = [];
-
     for (let y = 0; y < height; y++) {
       const row: THREE.Mesh[] = [];
       for (let x = 0; x < width; x++) {
         const isFirstRow = y < 1;
         const mainColor = isFirstRow
-          ? this.director.colorScheme.accent
-          : this.director.colorScheme.primary;
+          ? this.director.colorScheme.light
+          : this.director.colorScheme.green;
         const box = new Box({
           width: 1,
           height: 1,
@@ -97,13 +99,10 @@ export class Home extends Route {
         });
 
         const mesh = box.createMesh();
+        mesh.userData.isInteractive = !isFirstRow;
         group.add(mesh);
         this.createAnimation(mesh, x, y, height);
         row.push(mesh);
-
-        if (!isFirstRow) {
-          this.interactiveGroupArray.push(mesh);
-        }
       }
       boxes.push(row);
     }
@@ -124,6 +123,9 @@ export class Home extends Route {
 
   // Method to position button after animation
   animationComplete(): void {
+    // Add debug identifier
+    console.log('Animation complete called');
+
     const boundingBox = new THREE.Box3().setFromObject(this.group);
     const topLeft = {
       x: boundingBox.min.x,
