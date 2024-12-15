@@ -1,18 +1,19 @@
 // styles.scss
 @use './assets/styles/reset';
 @use './assets/styles/fonts';
-@use './assets/styles/color_schemes';
+@use './assets/styles/color-schemes';
 @use './assets/styles/variables';
 @use './assets/styles/mixins';
 @use './assets/styles/global';
 
 // elements
-@use './assets/styles/heading';
-@use './assets/styles/button';
+@use './assets/styles/elements/text';
+@use './assets/styles/elements/button';
 
 // components
-@use './assets/styles/navigation';
-@use './assets/styles/divider';
+@use './assets/styles/components/navigation';
+@use './assets/styles/components/divider';
+@use './assets/styles/components/content-template';
 
 // animations
 @use './assets/styles/animation/typewriter';

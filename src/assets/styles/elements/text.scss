@@ -6,8 +6,6 @@ h5,
 h6 {
   color: var(--color-light);
   font-weight: 700;
-  line-height: var(--line-height);
-  width: 100%;
 }
 
 h1 {
@@ -32,4 +30,24 @@ h5 {
 
 h6 {
   font-size: 1rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  line-height: var(--line-height);
+  width: 100%;
+
+  & > span {
+    font-size: inherit;
+  }
+}
+
+p {
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
 }

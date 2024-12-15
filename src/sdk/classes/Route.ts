@@ -20,6 +20,7 @@ export class Route {
   protected templateService: TemplateService;
   private template: DocumentFragment | null = null;
   private mountPoint: HTMLElement | null = null;
+  private loader: HTMLElement | null = null;
 
   constructor(route: routeInstance) {
     this.director = Director.getInstance();
@@ -36,6 +37,7 @@ export class Route {
 
     this.templateService = new TemplateService();
     this.mountPoint = document.getElementById('ui');
+    this.loader = document.getElementById('loader');
     window.___debug.log(`Route ${this.permalink} registered`);
     // Load template based on route permalink
     // this.loadTemplate();
@@ -119,6 +121,9 @@ export class Route {
   }
 
   async loadTemplate(): Promise<void> {
+    if (this.loader) {
+      this.loader.classList.add('active');
+    }
     try {
       // Remove leading slash for template path
       const templatePath = this.permalink.replace(/^\//, '');
@@ -129,6 +134,10 @@ export class Route {
       this.render();
     } catch (error) {
       console.error(`Failed to load template for ${this.permalink}:`, error);
+    } finally {
+      if (this.loader) {
+        this.loader.classList.remove('active');
+      }
     }
   }
 }

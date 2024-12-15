@@ -10,6 +10,7 @@ import { typewriterInit } from './sdk/animation/typewriter';
   document.addEventListener('DOMContentLoaded', async () => {
     await registerServiceWorker();
     document.body.classList.add('ready');
+    await typewriterInit('#title');
     await typewriterInit('.nav-item, nav span');
     initialize();
   });

@@ -96,11 +96,16 @@ export const typewrite = async (config: TypewriterConfig): Promise<void> => {
   await Promise.all(animations.map((a) => a()));
 };
 
-export const typewriterInit = async (domElements: string) => {
-  const typewriterItems = Array.from(document.querySelectorAll(domElements));
+export const typewriterInit = async (domElements: string | Element) => {
+  let typeWriterItems: Element[] = [];
+  if (typeof domElements === 'string') {
+    typeWriterItems = Array.from(document.querySelectorAll(domElements));
+  } else {
+    typeWriterItems = [domElements];
+  }
 
   // Create array of promises for all nav items
-  const animations = typewriterItems
+  const animations = typeWriterItems
     .map((item, index) => {
       if (item instanceof HTMLElement) {
         const finalText = item.textContent || '';

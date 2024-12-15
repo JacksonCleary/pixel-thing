@@ -7,3 +7,11 @@
     opacity: 1;
   }
 }
+
+.typewriter {
+  opacity: 0;
+
+  &:has(> span) {
+    opacity: 1;
+  }
+}
