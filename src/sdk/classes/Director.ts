@@ -29,6 +29,7 @@ export interface IDirector {
 }
 
 export class Director implements IDirector {
+  private events: Map<string, Function> = new Map();
   private static instance: Director | null = null;
   private sceneObjects: SceneObject[] = [];
   private domObjects: DOMElement<HTMLElement>[] = [];
@@ -90,8 +91,19 @@ export class Director implements IDirector {
     return this.currentRoute;
   }
 
-  setCurrentRoute(route: Route): void {
+  async setCurrentRoute(route: Route): Promise<void> {
+    console.log('route', route);
     this.currentRoute = route;
+    await this.emit('route:initialized');
+  }
+
+  on(event: string, callback: Function) {
+    this.events.set(event, callback);
+  }
+
+  emit(event: string) {
+    const callback = this.events.get(event);
+    if (callback) callback();
   }
 
   animate = () => {

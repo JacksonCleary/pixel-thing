@@ -6,6 +6,10 @@ button {
   font-family: var(--font-family);
   position: relative;
 
+  & > span {
+    color: inherit;
+  }
+
   &.three {
     font-size: 1rem;
     line-height: var(--line-height);
@@ -36,10 +40,14 @@ button {
     }
   }
 
-  &.nav-item {
+  &[data-route] {
     align-items: center;
     display: flex;
-    padding: 0;
+    padding: 0 0 0 0.25rem;
+    transition: background-color var(--transition-delay-short)
+        var(--transition-easing-in-out),
+      color var(--transition-delay-short) var(--transition-easing-in-out);
+    width: 100%;
 
     &::before {
       background-color: var(--color-light);
@@ -50,7 +58,30 @@ button {
       mask-image: url('assets/images/icon-file.svg');
       mask-repeat: no-repeat;
       mask-size: contain;
+      transition: background-color var(--transition-delay-short)
+          var(--transition-easing-in-out),
+        color var(--transition-delay-short) var(--transition-easing-in-out);
       width: 1rem;
+    }
+
+    &.active {
+      background-color: var(--color-blue);
+      color: var(--color-light);
+    }
+
+    &:hover:not(.active, :focus-visible) {
+      background-color: var(--color-green);
+      color: var(--color-light);
+    }
+
+    &:focus-visible {
+      background-color: var(--color-yellow);
+      color: var(--color-dark);
+      outline: none;
+
+      &::before {
+        background-color: var(--color-dark);
+      }
     }
   }
 }

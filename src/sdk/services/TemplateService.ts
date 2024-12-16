@@ -1,36 +1,29 @@
-// TemplateService.ts
 export class TemplateService {
-  private templates: Map<string, string> = new Map();
+  private templatePaths: Map<string, string> = new Map();
+  private loadedTemplates: Map<string, string> = new Map();
+  private templateContext;
 
   constructor() {
-    const templateContext = require.context(
-      '../../templates',
-      false,
-      /\.html$/
-    );
+    this.templateContext = require.context('../../templates', true, /\.html$/);
 
-    templateContext.keys().forEach((key) => {
+    this.templateContext.keys().forEach((key) => {
       const templateName = key.replace(/^\.\/(.*)\.html$/, '$1');
-      // Get template content directly
-      const content = templateContext(key);
-
-      if (typeof content !== 'string') {
-        console.error('Invalid template content:', {
-          templateName,
-          contentType: typeof content,
-          content,
-        });
-        return;
-      }
-
-      this.templates.set(templateName, content);
+      this.templatePaths.set(templateName, key);
     });
   }
 
   async fetchTemplate(name: string): Promise<DocumentFragment> {
-    const content = this.templates.get(name);
+    let content = this.loadedTemplates.get(name);
+
     if (!content) {
-      throw new Error(`Template ${name} not found`);
+      const templatePath = this.templatePaths.get(name);
+      if (!templatePath) {
+        throw new Error(`Template ${name} not found`);
+      }
+
+      // Use webpack context for dynamic import
+      content = await this.templateContext(templatePath);
+      this.loadedTemplates.set(name, content);
     }
 
     const parser = new DOMParser();
@@ -41,7 +34,14 @@ export class TemplateService {
       throw new Error(`No template element found in ${name}`);
     }
 
-    // Return cloned content to prevent recursion
     return template.content.cloneNode(true) as DocumentFragment;
+  }
+
+  clearCache(name?: string) {
+    if (name) {
+      this.loadedTemplates.delete(name);
+    } else {
+      this.loadedTemplates.clear();
+    }
   }
 }

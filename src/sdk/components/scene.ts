@@ -6,8 +6,9 @@ import {
   SHIMThreeasy,
   SHIMThreeasySettings,
 } from '../third-party/models/threeasy';
+import { initNavigation } from '../components/navigation';
 
-const start = (sceneEl: HTMLElement) => {
+const start = async (sceneEl: HTMLElement) => {
   const threeasySettings: SHIMThreeasySettings = {
     domElement: sceneEl,
   };
@@ -29,7 +30,9 @@ const start = (sceneEl: HTMLElement) => {
   const darkColor = director.colorScheme.dark;
   app.scene.background = new THREE.Color(darkColor);
 
-  director.start();
+  await director.start();
+
+  await initNavigation();
 };
 
 export default start;

@@ -15,6 +15,7 @@ export class Route {
 
   title: string;
   permalink: string;
+  routeInstance: string;
 
   private static mountedRoutes: Set<string> = new Set();
   protected templateService: TemplateService;
@@ -34,6 +35,7 @@ export class Route {
 
     this.title = route.title;
     this.permalink = route.permalink;
+    this.routeInstance = route.templateSrc || this.permalink;
 
     this.templateService = new TemplateService();
     this.mountPoint = document.getElementById('ui');
@@ -122,12 +124,13 @@ export class Route {
 
   async loadTemplate(): Promise<void> {
     if (this.loader) {
-      this.loader.classList.add('active');
+      console.log('this.loader.classList', this.loader.classList);
     }
     try {
       // Remove leading slash for template path
-      const templatePath = this.permalink.replace(/^\//, '');
+      const templatePath = this.routeInstance.replace(/^\//, '');
       const templateSlug = templatePath || 'home';
+      console.log('templateSlug', templateSlug);
       this.template = await this.templateService.fetchTemplate(templateSlug);
       window.___debug.log(`Template loaded for ${templateSlug}`);
       console.log(this.template);
