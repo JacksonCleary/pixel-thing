@@ -1,5 +1,7 @@
 import { Director } from '../classes/Director';
 
+const activeClass = 'active';
+
 export const initNavigation = async () => {
   const director = Director.getInstance();
   if (!director) {
@@ -11,8 +13,10 @@ export const initNavigation = async () => {
   navItems.forEach((item) => {
     item.addEventListener('click', async (e) => {
       e.preventDefault();
-      const route = item.getAttribute('data-route');
-      await director.findRoute(route);
+      if (!item.classList.contains(activeClass)) {
+        const route = item.getAttribute('data-route');
+        await director.findRoute(route);
+      }
     });
   });
 
@@ -34,6 +38,6 @@ const initRouteEventChange = async () => {
   const { permalink } = currentRoute;
   document.querySelectorAll('[data-route]').forEach((item) => {
     const route = item.getAttribute('data-route');
-    item.classList.toggle('active', route === permalink);
+    item.classList.toggle(activeClass, route === permalink);
   });
 };
